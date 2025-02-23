@@ -83,7 +83,7 @@ jobs:
             --image ${{ secrets.GAR_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/daftar-images/daftar-backoffice:$APP_VERSION \
             --platform managed \
             --region ${{ secrets.GAR_REGION }} \
-            --no-allow-unauthenticated \
+            --allow-unauthenticated \
             --memory=256Mi \
             --cpu=1 \
             --port=80
