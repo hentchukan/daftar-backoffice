@@ -82,12 +82,12 @@ export default {
       }
     },
     resetData() {
-      /*this.filmInfo = {}
+      this.filmInfo = {}
       this.articleTitle = ''
       this.articleDate = new Date()
       this.coverFile = null
       this.posterFile = null
-      this.$refs.filmInfoBar.reset();*/
+      this.$refs.filmInfoBar.reset();
       window.location.reload();
     },
     getFilmInfoYear(filmInfoYear) {
@@ -129,10 +129,10 @@ export default {
         this.filmInfo.cover = null
       } else {
         this.coverFile = filmCover
-        let nameParts = this.coverFile.name.split('.')
+        let nameParts = filmCover.name.split('.')
         this.filmInfo.cover = nameParts[0] + "-cover." + nameParts[1]
       }
-      console.log("Film cover "+this.$refs.filmInfoBar.coverFile);
+      console.log("Film cover {}, {}, {}"+/*this.$refs.filmInfoBar.coverFile*/ filmCover, this.coverFile, this.coverFile.name );
     },
     getFilmPoster(filmPoster) {
       if (filmPoster === undefined) {
@@ -140,10 +140,10 @@ export default {
         this.filmInfo.poster = null
       } else {
         this.posterFile = filmPoster
-        let nameParts = this.posterFile.name.split('.')
+        let nameParts = filmPoster.name.split('.')
         this.filmInfo.poster = nameParts[0] + "-poster." + nameParts[1]
       }
-      console.log("Film poster "+this.$refs.filmInfoBar.posterFile);
+      console.log("Film poster {}, {}, {}"+/*this.$refs.filmInfoBar.posterFile*/filmPoster, this.posterFile, this.posterFile.name);
     },
     getArticleDate(articleDate) {
       console.log("Article date "+this.articleDate);
@@ -168,7 +168,7 @@ export default {
           @fireArticleTitle="$event => this.getArticleTitle($event)"
           @fireFilmInfoSummary="$event => this.getFilmInfoSummary($event)"
           @fireFilmCover="getFilmCover"
-          @fireFilmPoster="$event => this.getFilmPoster($event.target.files[0])"
+          @fireFilmPoster="getFilmPoster"
           @fireArticleDate="$event => this.getArticleDate($event)"/>
 
   <div style="padding-top: 1rem">
