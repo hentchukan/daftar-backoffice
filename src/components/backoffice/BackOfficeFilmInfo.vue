@@ -34,7 +34,10 @@ export default {
       filmCover: '',
       filmPoster: '',
       coverFile: {},
-      posterFile: {}
+      posterFile: {},
+
+      coverPath: '',
+      posterPath: ''
     };
   },
   mounted() {
@@ -62,12 +65,24 @@ export default {
       let nameParts = event.target.files[0].name.split('.')
       this.filmCover = nameParts[0] + "-cover." + nameParts[1]
       console.log("uploaded file " + this.filmCover)
+      this.uploadFile({"filename": this.filmCover, "image": this.coverFile}, (response) => {
+        this.coverPath = response.data
+        console.log("passing done " + this.coverPath)
+        this.$emit('fireFilmCover', this.coverFile)
+      })
+
     },
     uploadPosterFile(event) {
       this.posterFile = event.target.files[0]
       let nameParts = event.target.files[0].name.split('.')
       this.filmPoster = nameParts[0] + "-poster." + nameParts[1]
       console.log("uploaded file " + this.filmPoster)
+      this.uploadFile({"filename": this.filmPoster, "image": this.posterFile}, (response) => {
+        this.posterPath = response.data
+        console.log("passing done " + this.posterPath)
+        this.$emit('fireFilmPoster', this.posterFile)
+      })
+
     },
     setTitleClass() {
       return "font-general-medium pl-3 pr-1 sm:px-4 py-2 border-1 border-gray-200 dark:border-secondary-dark rounded-lg text-sm sm:text-md bg-secondary-light dark:bg-ternary-dark text-primary-dark dark:text-ternary-light bo-info-bar-item";
@@ -83,6 +98,7 @@ export default {
         this.$emit('fireArticleDate', $event)
       }
     },
+
     reset() {
       this.filmTitles = [];
       this.directorValues = [];
@@ -102,6 +118,19 @@ export default {
     },
     isCoverFileReceived() {
       return this.coverFile && this.coverFile.files && this.coverFile.files.length > 0;
+    },
+
+    uploadFile(mydata, callback) {
+      axios.post(DAFTAR_BACK_BASE_URL + '/v1/articles/upload', mydata, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(response => {
+        console.log("Poster file uploaded successfully " + response.data)
+        callback(response)
+      }).catch(error => {
+        console.log("Error uploading poster file " + error)
+      });
     }
   }
 }
@@ -223,10 +252,10 @@ export default {
                   aria-label="Title"/>
     </div>
 
-    <div :class="[this.$refs.coverFile && this.$refs.coverFile.files.length == 0 ? 'red-bordered' : 'green-bordered']">
-      <button :class="['btn', 'btn-info']" @click="this.$refs.coverFile.click() || console.log(this.$refs.coverFile.files.length == 0)">غِلافُ الفِلم</button>
+    <div :class="[this.$refs.coverFile && this.$refs.coverFile.files.length === 0 ? 'red-bordered' : 'green-bordered']">
+      <button :class="['btn', 'btn-info']" @click="this.$refs.coverFile.click() || console.log(this.$refs.coverFile.files.length === 0)">غِلافُ الفِلم</button>
       <input
-              @change="$emit('fireFilmCover', $event.target.files[0])"
+              @change="uploadCoverFile"
               :class=[this.setTitleClass()] style="width: 27rem; display: none"
               id="cover"
               name="cover"
@@ -235,13 +264,14 @@ export default {
               required="required"
               accept="image/*"
       />
+      <img v-if="coverPath"  :src="coverPath" alt="Cover" style="width: 100px; height: 40px"/>
     </div>
 
     <div></div>
-    <div :class="[this.$refs.posterFile && this.$refs.posterFile.files.length == 0 ? 'red-bordered' : 'green-bordered']">
+    <div :class="[this.$refs.posterFile && this.$refs.posterFile.files.length === 0 ? 'red-bordered' : 'green-bordered']">
       <button class="btn btn-info" @click="this.$refs.posterFile.click()">مُعلّقَةُ الفِلم</button>
       <input
-              @change="$emit('fireFilmPoster', $event)"
+              @change="uploadPosterFile"
               :class=[this.setTitleClass()] style="width: 27rem; margin-left: -4.6rem; display: none"
               id="poster"
               name="poster"
@@ -249,6 +279,7 @@ export default {
               type="file"
               required="required"
               accept="image/*"/>
+      <img v-if="posterPath"  :src="posterPath" alt="Poster" style="width: 60px; height: 100px"/>
     </div>
   </div>
 </template>
