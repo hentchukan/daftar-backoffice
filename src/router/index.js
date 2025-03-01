@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 
+import keycloak from "@/services/keycloak.ts";
+import Admin from "@/components/backoffice/Admin.vue";
+
 const routes = [
 	{
 		path: '/',
@@ -18,7 +21,7 @@ const routes = [
         meta: {
             title: 'Daftar - Front',
         },
-    }
+    }, { path: "/admin", component: Admin, meta: { requiresAuth: true } },
 
 ];
 
@@ -28,6 +31,16 @@ const router = createRouter({
 	scrollBehavior() {
 		document.getElementById('app').scrollIntoView();
 	},
+});
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !keycloak.authenticated) {
+        keycloak.login().then(r => {
+            console.log("Login success", r);
+        });
+    } else {
+        next();
+    }
 });
 
 export default router;

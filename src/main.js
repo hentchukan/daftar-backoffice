@@ -8,15 +8,32 @@ import CKEditor from '@ckeditor/ckeditor5-vue';
 import BackToTop from 'vue-backtotop';
 import BackDoor from "@/views/BackDoor.vue";
 
+import keycloak from "@/services/keycloak.ts";
+
 const feather = require('feather-icons');
 feather.replace();
 
-createApp(BackDoor)
-	.use(router)
-	.use(BackToTop)
-	.use( CKEditor )
-	.mount('#app');
+keycloak.init({ onLoad: "login-required" }).then((authenticated) => {
 
+    if (!authenticated) {
+        console.error("User not authenticated");
+        window.location.reload(); // Redirect to login
+    } else {
+        console.log("Authenticated!", keycloak.token);
+    }
+
+    const app = createApp(BackDoor)
+            .use(router)
+            .use(BackToTop)
+            .use( CKEditor )
+            .mount('#app');
+
+    app.config.globalProperties.$keycloak = keycloak;
+    app.mount("#app");
+
+}).catch((err) => {
+    console.error("Keycloak initialization error:", err);
+});
 
 const appTheme = localStorage.getItem('theme');
 
