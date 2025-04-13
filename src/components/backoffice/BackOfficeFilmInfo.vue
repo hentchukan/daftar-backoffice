@@ -5,8 +5,9 @@ import Datepicker from '@vuepic/vue-datepicker';
 import 'vue-select/dist/vue-select.css';
 import { ref } from 'vue';
 import {DAFTAR_BACK_BASE_URL} from "../../../config";
+import StarRating from "@/components/shared/StarRating.vue";
 export default {
-  components: { 'v-select': vSelect, Datepicker},
+  components: {StarRating, 'v-select': vSelect, Datepicker},
   setup() {
     const filmInfoYear = ref(new Date().getFullYear());
     const articleDate = ref(new Date());
@@ -37,7 +38,9 @@ export default {
       posterFile: {},
 
       coverPath: '',
-      posterPath: ''
+      posterPath: '',
+
+      starRating: 0.0
     };
   },
   mounted() {
@@ -98,7 +101,11 @@ export default {
         this.$emit('fireArticleDate', $event)
       }
     },
-
+    rateThis($event) {
+      this.starRating = $event;
+      console.log($event / 2)
+      this.$emit('fireFilmRating', $event / 2);
+    },
     reset() {
       this.filmTitles = [];
       this.directorValues = [];
@@ -267,7 +274,8 @@ export default {
       <img v-if="coverPath"  :src="coverPath" alt="Cover" style="width: 100px; height: 40px"/>
     </div>
 
-    <div></div>
+    <div><StarRating class="flex" :rating="starRating" @input="rateThis" /></div>
+
     <div :class="[this.$refs.posterFile && this.$refs.posterFile.files.length === 0 ? 'red-bordered' : 'green-bordered']">
       <button class="btn btn-info" @click="this.$refs.posterFile.click()">مُعلّقَةُ الفِلم</button>
       <input
