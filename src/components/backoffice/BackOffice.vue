@@ -17,7 +17,8 @@ export default {
       filmInfo: {},
       articleTitle: '',
       articleDate: new Date(),
-      status: 'draft'
+      status: 'draft',
+      rating: 0.0
     }
   },
   methods: {
@@ -33,6 +34,8 @@ export default {
     submitData() {
       let container = document.getElementById('editor');
       let editor = new Quill(container);
+      let filmRating = this.rating;
+
       // Create FormData object
       let formData = new FormData();
       // Convert ArticleDTO to JSON string and wrap it in a Blob
@@ -40,7 +43,8 @@ export default {
         "filmInfo": this.filmInfo,
         "title": this.articleTitle,
         "text": editor.getText(),
-        "articleDate": this.articleDate
+        "articleDate": this.articleDate,
+        "rating": filmRating
       };
       let articleBlob = new Blob([JSON.stringify(articleDTO)], { type: 'application/json' });
       // Append Blob to FormData
@@ -52,22 +56,22 @@ export default {
       if (this.posterFile) {
         formData.append('posterImage', this.posterFile);
       }
+      console.log("Film Rating "+ articleDTO.rating);
       // Send FormData using axios
       axios.post(DAFTAR_BACK_BASE_URL + '/v1/articles', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
+      }).then(response => {
+        if (response.status === 200) {
+          this.status = 'success'
+          toast.success(this.articleTitle + " has been saved successfully", this.toastOptions());
+        }
       })
-              .then(response => {
-                if (response.status === 200) {
-                  this.status = 'success'
-                  toast.success(this.articleTitle + " has been saved successfully", this.toastOptions());
-                }
-              })
-              .catch(error => {
-                this.status = 'error'
-                toast.error("An error occurred while saving the article " + error.response.data, this.toastOptions());
-              });
+      .catch(error => {
+        this.status = 'error'
+        toast.error("An error occurred while saving the article " + error.response.data, this.toastOptions());
+      });
     },
     toastOptions() {
       return {
@@ -148,6 +152,10 @@ export default {
     getArticleDate(articleDate) {
       console.log("Article date "+this.articleDate);
       this.articleDate = articleDate;
+    },
+    getRating(ratingEvent) {
+      console.log("Rating "+ratingEvent);
+      this.rating = ratingEvent;
     }
   },
   mounted() {
@@ -169,7 +177,8 @@ export default {
           @fireFilmInfoSummary="$event => this.getFilmInfoSummary($event)"
           @fireFilmCover="getFilmCover"
           @fireFilmPoster="getFilmPoster"
-          @fireArticleDate="$event => this.getArticleDate($event)"/>
+          @fireArticleDate="$event => this.getArticleDate($event)"
+          @fireFilmRating="$event => this.getRating($event)"/>
 
   <div style="padding-top: 1rem">
     <quill id="editor" theme="snow" toolbar="full" style="min-height: 30rem;" />
