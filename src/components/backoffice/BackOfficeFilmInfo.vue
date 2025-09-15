@@ -73,7 +73,6 @@ export default {
         console.log("passing done " + this.coverPath)
         this.$emit('fireFilmCover', this.coverFile)
       })
-
     },
     uploadPosterFile(event) {
       this.posterFile = event.target.files[0]
