@@ -13,24 +13,46 @@ import keycloak from "@/services/keycloak.ts";
 const feather = require('feather-icons');
 feather.replace();
 
-keycloak.init({ onLoad: "login-required" }).then((authenticated) => {
+keycloak.onReady = (authenticated) => {
+    console.log("Keycloak ready:", authenticated);
+};
+
+keycloak.onAuthError = (errorData) => {
+    console.error("Keycloak auth error:", errorData);
+};
+
+keycloak.onAuthLogout = () => {
+    console.warn("Keycloak auth logout detected");
+};
+
+keycloak.onAuthRefreshError = () => {
+    console.error("Keycloak auth refresh error");
+};
+
+keycloak.onTokenExpired = () => {
+    console.warn("Keycloak token expired");
+};
+
+keycloak.init({
+    onLoad: "login-required",
+    checkLoginIframe: false,
+    enableLogging: true,
+}).then((authenticated) => {
 
     if (!authenticated) {
         console.error("User not authenticated");
-        window.location.reload(); // Redirect to login
-    } else {
-        console.log("Authenticated!", keycloak.token);
+        return;
     }
 
+    console.log("Authenticated!", keycloak.token);
+
     const app = createApp(BackDoor)
-            .use(router)
-            .use(BackToTop)
-            .use( CKEditor )
-            .mount('#app');
+        .use(router)
+        .use(BackToTop)
+        .use(CKEditor);
 
     app.config.globalProperties.$keycloak = keycloak;
     app.mount("#app");
-
 }).catch((err) => {
     console.error("Keycloak initialization error:", err);
 });
